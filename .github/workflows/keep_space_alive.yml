@@ -26,29 +26,28 @@ jobs:
     - name: Run login script
       run: |
         cat << 'EOF' > login.js
-const { chromium } = require('playwright');
-
-(async () => {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-
-  await page.goto('https://jlgarciatucci-brb-fault-detector.hf.space', {
-    waitUntil: 'domcontentloaded',
-    timeout: 90000
-  });
-
-  await page.waitForSelector('textarea[data-testid="textbox"]', { timeout: 30000 });
-  await page.fill('textarea[data-testid="textbox"]', 'guest');
-
-  await page.waitForSelector('input[data-testid="password"]', { timeout: 30000 });
-  await page.fill('input[data-testid="password"]', 'guest');
-
-  await page.waitForSelector('button#component-8', { timeout: 30000 });
-  await page.click('button#component-8');
-
-  await page.waitForTimeout(15000);
-  await browser.close();
-})();
-EOF
-
+        const { chromium } = require('playwright');
+        
+        (async () => {
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+        
+          await page.goto('https://jlgarciatucci-brb-fault-detector.hf.space', {
+            waitUntil: 'domcontentloaded',
+            timeout: 90000
+          });
+        
+          await page.waitForSelector('textarea[data-testid="textbox"]', { timeout: 30000 });
+          await page.fill('textarea[data-testid="textbox"]', 'guest');
+        
+          await page.waitForSelector('input[data-testid="password"]', { timeout: 30000 });
+          await page.fill('input[data-testid="password"]', 'guest');
+        
+          await page.waitForSelector('button#component-8', { timeout: 30000 });
+          await page.click('button#component-8');
+        
+          await page.waitForTimeout(15000);
+          await browser.close();
+        })();
+        EOF
         node login.js
