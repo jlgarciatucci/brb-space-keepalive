@@ -33,7 +33,7 @@ jobs:
           const page = await browser.newPage();
 
           // Visit your space directly
-          await page.goto('https://huggingface.co/spaces/jlgarciatucci/BRB_fault_detector', , {
+          await page.goto('https://huggingface.co/spaces/jlgarciatucci/BRB_fault_detector', {
           waitUntil: 'domcontentloaded',
           timeout: 90000 // wait up to 90 seconds });
 
