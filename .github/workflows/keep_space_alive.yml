@@ -38,8 +38,8 @@ jobs:
           await page.fill('textarea[data-testid="textbox"]', 'guest');
           await page.waitForSelector('input[data-testid="password"]', { timeout: 30000 });
           await page.fill('input[data-testid="password"]', 'guest');
-          await page.waitForSelector('button#component-8', { timeout: 30000 });
-          await page.click('button#component-8');
+          await page.keyboard.press('Tab');
+          await page.keyboard.press('Enter');
           await page.waitForTimeout(15000);
           await page.waitForSelector('button#tab-series-temporal-button', { timeout: 30000 });
           console.log("Login successful — tab detected.");
