@@ -41,6 +41,8 @@ jobs:
           await page.waitForSelector('button#component-8', { timeout: 30000 });
           await page.click('button#component-8');
           await page.waitForTimeout(15000);
+          await page.waitForSelector('button#tab-series-temporal-button', { timeout: 30000 });
+          console.log("Login successful — tab detected.");
           await browser.close();   
         })();
         EOF
