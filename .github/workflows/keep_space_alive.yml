@@ -2,7 +2,7 @@ name: Keep BRB Fault Detector Alive
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # every day at 06:00 UTC
+    - cron: '0 6 * * *'  # Run daily at 06:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -26,32 +26,33 @@ jobs:
 
     - name: Run login script
       run: |
-        echo "const { chromium } = require('playwright');
+        cat <<EOF > login.js
+        const { chromium } = require('playwright');
 
         (async () => {
           const browser = await chromium.launch();
           const page = await browser.newPage();
 
-          // Visit your space directly
-          await page.goto('https://huggingface.co/spaces/jlgarciatucci/BRB_fault_detector', {
-          waitUntil: 'domcontentloaded',
-          timeout: 90000 // wait up to 90 seconds });
+          await page.goto('https://jlgarciatucci-brb-fault-detector.hf.space', {
+            waitUntil: 'domcontentloaded',
+            timeout: 90000
+          });
 
-          // Fill in username
-          await page.waitForSelector('textarea[data-testid=\"textbox\"]');
-          await page.fill('textarea[data-testid=\"textbox\"]', 'guest');
+          await page.waitForSelector('textarea[data-testid="textbox"]', { timeout: 30000 });
+          await page.fill('textarea[data-testid="textbox"]', 'guest');
 
-          // Fill in password
-          await page.waitForSelector('input[data-testid=\"password\"]');
-          await page.fill('input[data-testid=\"password\"]', 'guest');
+          await page.waitForSelector('input[data-testid="password"]', { timeout: 30000 });
+          await page.fill('input[data-testid="password"]', 'guest');
 
-          // Submit login
-          await page.keyboard.press('Enter');
+          // Click the login button
+          await page.waitForSelector('button#component-8', { timeout: 30000 });
+          await page.click('button#component-8');
 
-          // Wait to simulate real usage
-          await page.waitForTimeout(10000);
+          // Wait for app to initialize after login
+          await page.waitForTimeout(15000);
 
           await browser.close();
-        })();" > login.js
+        })();
+EOF
 
         node login.js
