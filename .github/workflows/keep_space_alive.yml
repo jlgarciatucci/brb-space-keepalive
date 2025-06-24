@@ -1,42 +1,54 @@
-name: Hugging Face Space Login Workflow
+name: Keep BRB Fault Detector Alive
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'  # Run daily at 06:00 UTC
+  workflow_dispatch:
 
 jobs:
-  login-test:
+  keepalive:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout repo
+      uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
 
-      - name: Install Playwright
-        run: npm install playwright
+    - name: Install Playwright and browser
+      run: |
+        npm install playwright
+        npx playwright install --with-deps
 
-      - name: Run login script
-        env:
-          HF_USERNAME: ${{ secrets.HF_USERNAME }}
-          HF_PASSWORD: ${{ secrets.HF_PASSWORD }}
-        run: |
-          cat << 'EOF' > login.js
-          const { chromium } = require('playwright');
-          (async () => {
-            const browser = await chromium.launch();
-            const context = await browser.newContext();
-            const page = await context.newPage();
-            await page.goto('https://huggingface.co/login');
-            await page.fill('input[name="username"]', process.env.HF_USERNAME);
-            await page.fill('input[name="password"]', process.env.HF_PASSWORD);
-            await page.click('button[type="submit"]');
-            // Wait for a user-specific element to confirm login succeeded
-            await page.waitForSelector('text=My profile');
-            console.log('Login successful');
-            await browser.close();
-          })();
-          EOF
-          node login.js
+    - name: Run login script
+      run: |
+        cat << 'EOF' > login.js
+const { chromium } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  await page.goto('https://jlgarciatucci-brb-fault-detector.hf.space', {
+    waitUntil: 'domcontentloaded',
+    timeout: 90000
+  });
+
+  await page.waitForSelector('textarea[data-testid="textbox"]', { timeout: 30000 });
+  await page.fill('textarea[data-testid="textbox"]', 'guest');
+
+  await page.waitForSelector('input[data-testid="password"]', { timeout: 30000 });
+  await page.fill('input[data-testid="password"]', 'guest');
+
+  await page.waitForSelector('button#component-8', { timeout: 30000 });
+  await page.click('button#component-8');
+
+  await page.waitForTimeout(15000);
+  await browser.close();
+})();
+EOF
+
+        node login.js
