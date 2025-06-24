@@ -10,49 +10,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
 
-    - name: Install Playwright
-      run: |
-        npm init -y
-        npm install playwright
-        npx playwright install --with-deps
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps
 
-    - name: Run login script
-      run: |
-        cat <<EOF > login.js
-        const { chromium } = require('playwright');
+      - name: Run login script
+        run: |
+          cat <<EOF > login.js
+const { chromium } = require('playwright');
 
-        (async () => {
-          const browser = await chromium.launch();
-          const page = await browser.newPage();
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
 
-          await page.goto('https://jlgarciatucci-brb-fault-detector.hf.space', {
-            waitUntil: 'domcontentloaded',
-            timeout: 90000
-          });
+  await page.goto('https://jlgarciatucci-brb-fault-detector.hf.space', {
+    waitUntil: 'domcontentloaded',
+    timeout: 90000
+  });
 
-          await page.waitForSelector('textarea[data-testid="textbox"]', { timeout: 30000 });
-          await page.fill('textarea[data-testid="textbox"]', 'guest');
+  await page.waitForSelector('textarea[data-testid="textbox"]', { timeout: 30000 });
+  await page.fill('textarea[data-testid="textbox"]', 'guest');
 
-          await page.waitForSelector('input[data-testid="password"]', { timeout: 30000 });
-          await page.fill('input[data-testid="password"]', 'guest');
+  await page.waitForSelector('input[data-testid="password"]', { timeout: 30000 });
+  await page.fill('input[data-testid="password"]', 'guest');
 
-          // Click the login button
-          await page.waitForSelector('button#component-8', { timeout: 30000 });
-          await page.click('button#component-8');
+  // Click the login button
+  await page.waitForSelector('button#component-8', { timeout: 30000 });
+  await page.click('button#component-8');
 
-          // Wait for app to initialize after login
-          await page.waitForTimeout(15000);
-
-          await browser.close();
-        })();
+  await page.waitForTimeout(15000);
+  await browser.close();
+})();
 EOF
 
-        node login.js
+          node login.js
