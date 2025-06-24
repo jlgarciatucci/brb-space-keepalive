@@ -1,0 +1,55 @@
+name: Keep BRB Fault Detector Alive
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # every day at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install Playwright
+      run: |
+        npm init -y
+        npm install playwright
+        npx playwright install --with-deps
+
+    - name: Run login script
+      run: |
+        echo "const { chromium } = require('playwright');
+
+        (async () => {
+          const browser = await chromium.launch();
+          const page = await browser.newPage();
+
+          // Visit your space directly
+          await page.goto('https://jlgarciatucci-brb-fault-detector.hf.space', { waitUntil: 'networkidle' });
+
+          // Fill in username
+          await page.waitForSelector('textarea[data-testid=\"textbox\"]');
+          await page.fill('textarea[data-testid=\"textbox\"]', 'guest');
+
+          // Fill in password
+          await page.waitForSelector('input[data-testid=\"password\"]');
+          await page.fill('input[data-testid=\"password\"]', 'guest');
+
+          // Submit login
+          await page.keyboard.press('Enter');
+
+          // Wait to simulate real usage
+          await page.waitForTimeout(10000);
+
+          await browser.close();
+        })();" > login.js
+
+        node login.js
